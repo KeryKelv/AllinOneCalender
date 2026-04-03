@@ -188,16 +188,16 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen w-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col selection:bg-indigo-100 font-sans overflow-hidden">
+    <div className="h-screen w-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col items-center justify-center selection:bg-indigo-100 font-sans overflow-hidden">
       {/* Fixed logout button in top-right */}
       <button onClick={handleLogout} aria-label="Đăng xuất" className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-white/95 text-slate-900 py-2 px-3 rounded-full shadow-2xl border border-slate-200 hover:scale-105 transition-transform">
         <LogOut size={18} />
         <span className="hidden sm:inline font-semibold">Đăng xuất</span>
       </button>
-      <div className="w-full h-full flex flex-col overflow-hidden">
+      <div className="w-full flex flex-col overflow-hidden items-center justify-center">
         
         {/* Header */}
-        <div className="px-8 py-4 flex items-center border-b border-slate-50 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex-shrink-0">
+        <div className="px-8 py-4 flex items-center border-b border-slate-50 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex-shrink-0 w-full max-w-5xl">
           <div>
             <div className="flex items-center gap-2 mb-1">
                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-lg shadow-emerald-400"></div>
@@ -207,7 +207,7 @@ export default function App() {
         </div>
 
         {/* Input Section */}
-        <div className="px-8 py-4 bg-slate-50/50 border-b border-slate-100 flex-shrink-0">
+        <div className="px-8 py-4 bg-slate-50/50 border-b border-slate-100 flex-shrink-0 w-full max-w-5xl">
           {/* Add Task Form */}
           <form onSubmit={handleAddTask} className="w-full p-4 space-y-3 bg-transparent">
             {/* Task Input */}
@@ -247,7 +247,7 @@ export default function App() {
         </div>
 
         {/* Task List */}
-        <div className="px-8 pb-6 space-y-2 flex-1 overflow-y-auto pt-3">
+        <div className="px-8 pb-6 space-y-2 overflow-y-auto pt-3 w-full max-w-5xl max-h-[60vh]">
           {tasks.length === 0 ? null : (
             <div className="grid grid-cols-1 gap-2">
               {tasks.length === 0 ? (
@@ -262,15 +262,15 @@ export default function App() {
                       <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setExpandedTask(expandedTask === task.id ? null : task.id)}>
                         <div className="flex items-start justify-between gap-2 mb-1">
                           <p className={`font-bold leading-snug transition-all truncate ${task.completed ? 'text-slate-300 line-through' : 'text-slate-900'}`}>
-                            <span className="inline-block px-3 py-1 bg-slate-100 rounded-md">{task.text}</span>
+                            <span className="pill pill--slate">{task.text}</span>
                           </p>
-                          <span className={`flex-shrink-0 text-sm font-semibold px-3 py-1 rounded-md ${task.priority === 'high' ? 'bg-rose-100 text-rose-700' : task.priority === 'medium' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700'}`}>{task.priority === 'high' ? 'HIGH' : task.priority === 'medium' ? 'MED' : 'LOW'}</span>
+                          <span className={`flex-shrink-0 text-sm font-semibold pill ${task.priority === 'high' ? 'pill--rose' : task.priority === 'medium' ? 'pill--amber' : 'pill--emerald'}`}>{task.priority === 'high' ? 'HIGH' : task.priority === 'medium' ? 'MED' : 'LOW'}</span>
                         </div>
-                        <div className="flex items-center gap-2 flex-wrap text-xs">
-                          <span className="px-3 py-1 rounded-md bg-indigo-50 text-indigo-700 font-semibold">{task.category === 'work' ? '💼 Work' : task.category === 'personal' ? '🎯 Personal' : task.category === 'health' ? '💪 Health' : '🛛'}</span>
-                          {task.deadline && <span className="px-3 py-1 rounded-md bg-slate-100 text-slate-600">📅 {new Date(task.deadline).toLocaleDateString('vi-VN')}</span>}
-                          {recurring[task.id] && <span className="px-3 py-1 rounded-md bg-purple-50 text-purple-600 font-semibold">🔄 {recurring[task.id]}</span>}
-                          {timeSpent[task.id] && <span className="px-3 py-1 rounded-md bg-blue-50 text-blue-600 font-semibold">⏱️ {timeSpent[task.id]}h</span>}
+                        <div className="flex items-center gap-2 flex-wrap text-xs task-meta">
+                          <span className="pill pill--indigo font-semibold">{task.category === 'work' ? '💼 Work' : task.category === 'personal' ? '🎯 Personal' : task.category === 'health' ? '💪 Health' : '🛛'}</span>
+                          {task.deadline && <span className="pill pill--slate">📅 {new Date(task.deadline).toLocaleDateString('vi-VN')}</span>}
+                          {recurring[task.id] && <span className="pill pill--purple font-semibold">🔄 {recurring[task.id]}</span>}
+                          {timeSpent[task.id] && <span className="pill pill--blue font-semibold">⏱️ {timeSpent[task.id]}h</span>}
                         </div>
 
                         {/* Expanded Details */}
@@ -319,7 +319,7 @@ export default function App() {
           )}
         </div>
 
-        <div className="px-8 py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center gap-2 flex-shrink-0">
+        <div className="px-8 py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center gap-2 flex-shrink-0 w-full max-w-5xl">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-lg shadow-emerald-400"></div>
         </div>
       </div>

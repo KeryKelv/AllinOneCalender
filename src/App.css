@@ -275,3 +275,35 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
+
+/* Pill / badge utilities for consistent UI */
+.pill {
+  display: inline-block;
+  padding: 0.25rem 0.75rem; /* ~ px-3 py-1 */
+  border-radius: 0.375rem; /* rounded-md */
+  font-weight: 600;
+  font-size: 0.95rem;
+  margin: 0.1rem 0.25rem;
+  color: #0f172a;
+  background: rgba(241,245,249,0.85);
+  box-shadow: 0 1px 2px rgba(2,6,23,0.06);
+}
+
+.pill--slate { background: rgba(241,245,249,0.95); color: #0f172a; }
+.pill--rose { background: rgba(255,240,242,0.95); color: #7f1d1d; }
+.pill--amber { background: rgba(255,249,230,0.95); color: #7c2d12; }
+.pill--emerald { background: rgba(236,253,245,0.95); color: #064e3b; }
+.pill--indigo { background: rgba(238,242,255,0.95); color: #3730a3; }
+.pill--purple { background: rgba(245,243,255,0.95); color: #5b21b6; }
+.pill--blue { background: rgba(239,246,255,0.95); color: #0369a1; }
+
+/* Full-width task row helpers */
+.task-row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+}
+
+.task-meta { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
