@@ -25,7 +25,7 @@ if (isConfigValid) {
 }
 
 // Calendar Component
-function SimpleCalendar({ currentMonth, selectedDate, onDateSelect }) {
+function SimpleCalendar({ currentMonth, selectedDate, onDateSelect, onMonthChange }) {
   const daysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay();
   const days = [];
@@ -40,8 +40,8 @@ function SimpleCalendar({ currentMonth, selectedDate, onDateSelect }) {
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-bold text-slate-900">{monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}</h3>
         <div className="flex gap-2">
-          <button onClick={() => new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)} className="p-1 hover:bg-slate-100 rounded">←</button>
-          <button onClick={() => new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)} className="p-1 hover:bg-slate-100 rounded">→</button>
+          <button onClick={() => onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))} className="p-1 hover:bg-slate-100 rounded">←</button>
+          <button onClick={() => onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))} className="p-1 hover:bg-slate-100 rounded">→</button>
         </div>
       </div>
       <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-600 mb-2">
@@ -233,7 +233,7 @@ export default function App() {
           <div className="grid grid-cols-4 gap-6 mb-6">
             {/* Left Column: Calendar */}
             <div className="col-span-1">
-              <SimpleCalendar currentMonth={currentMonth} selectedDate={selectedDate} onDateSelect={setSelectedDate} />
+              <SimpleCalendar currentMonth={currentMonth} selectedDate={selectedDate} onDateSelect={setSelectedDate} onMonthChange={setCurrentMonth} />
             </div>
 
             {/* Middle Columns: Tasks & Comments */}
