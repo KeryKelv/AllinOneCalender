@@ -149,7 +149,7 @@ export default function App() {
         
         <div className="relative z-10 w-full">
           {/* Card */}
-          <div className="bg-white/10 backdrop-blur-md p-12 rounded-3xl border border-white/20 text-center shadow-2xl">
+          <div className="bg-white/10 backdrop-blur-md p-12 rounded-3xl border border-white/20 text-center shadow-2xl max-w-lg mx-auto">
             {/* Icon Container */}
             <div className="mb-8 flex justify-center">
               <div className="w-24 h-24 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center text-white shadow-2xl shadow-indigo-500/50">
@@ -190,26 +190,26 @@ export default function App() {
   return (
     <div className="h-screen w-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col items-center justify-center selection:bg-indigo-100 font-sans overflow-hidden">
       {/* Fixed logout button in top-right */}
-      <button onClick={handleLogout} aria-label="Đăng xuất" className="fixed top-4 right-4 z-50 flex items-center gap-2 bg-white/95 text-slate-900 py-2 px-3 rounded-full shadow-2xl border border-slate-200 hover:scale-105 transition-transform">
+      <button onClick={handleLogout} aria-label="Đăng xuất" className="fixed top-4 right-6 left-auto z-50 flex items-center gap-2 bg-white/95 text-slate-900 py-2 px-3 rounded-full shadow-2xl border border-slate-200 hover:scale-105 transition-transform">
         <LogOut size={18} />
         <span className="hidden sm:inline font-semibold">Đăng xuất</span>
       </button>
       <div className="w-full flex flex-col overflow-hidden items-center justify-center">
         
         {/* Header */}
-        <div className="px-8 py-4 flex items-center border-b border-slate-50 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex-shrink-0 w-full max-w-5xl">
-          <div>
-            <div className="flex items-center gap-2 mb-1">
+        <div className="px-8 py-4 flex items-center justify-center border-b border-slate-50 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex-shrink-0 w-full max-w-5xl mx-auto">
+          <div className="w-full">
+            <div className="flex items-center justify-center gap-2 mb-1 w-full">
                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-lg shadow-emerald-400"></div>
               </div>
-              <h2 className="text-2xl font-black text-white tracking-tight">Việc của Khoa 👋</h2>
+              <h2 className="text-2xl font-black text-white tracking-tight text-center">Việc của Khoa 👋</h2>
           </div>
         </div>
 
         {/* Input Section */}
-        <div className="px-8 py-4 bg-slate-50/50 border-b border-slate-100 flex-shrink-0 w-full max-w-5xl">
+        <div className="px-8 py-4 bg-slate-50/50 border-b border-slate-100 flex-shrink-0 w-full max-w-5xl mx-auto">
           {/* Add Task Form */}
-          <form onSubmit={handleAddTask} className="w-full p-4 space-y-3 bg-transparent">
+          <form onSubmit={handleAddTask} className="w-full p-4 space-y-3 bg-transparent max-w-3xl mx-auto">
             {/* Task Input */}
             <div className="relative">
               <input type="text" value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder="What's your next task?" className="w-full pl-4 pr-12 py-3 rounded-lg border-none bg-slate-50 text-slate-800 font-bold text-sm shadow-inner outline-none ring-2 ring-transparent focus:ring-indigo-500/10 transition-all" />
@@ -247,7 +247,7 @@ export default function App() {
         </div>
 
         {/* Task List */}
-        <div className="px-8 pb-6 space-y-2 overflow-y-auto pt-3 w-full max-w-5xl max-h-[60vh]">
+        <div className="px-8 pb-6 space-y-2 overflow-y-auto pt-3 w-full max-w-5xl mx-auto max-h-[60vh]">
           {tasks.length === 0 ? null : (
             <div className="grid grid-cols-1 gap-2">
               {tasks.length === 0 ? (
@@ -319,7 +319,7 @@ export default function App() {
           )}
         </div>
 
-        <div className="px-8 py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center gap-2 flex-shrink-0 w-full max-w-5xl">
+        <div className="px-8 py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center gap-2 flex-shrink-0 w-full max-w-5xl mx-auto">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-lg shadow-emerald-400"></div>
         </div>
       </div>
