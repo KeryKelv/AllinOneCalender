@@ -92,6 +92,7 @@ export default function App() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [timeTracking, setTimeTracking] = useState({});
+  const [selectedCategory, setSelectedCategory] = useState(null);
 
   useEffect(() => {
     if (!isConfigValid) { setLoading(false); return; }
@@ -344,7 +345,22 @@ export default function App() {
                 <h3 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '16px', margin: 0, paddingBottom: '16px' }}>My categories</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {tasksByCategory.map(cat => (
-                    <div key={cat.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                    <div
+                      key={cat.name}
+                      onClick={() => setSelectedCategory(cat.name)}
+                      role="button"
+                      aria-label={`Open ${cat.name} history`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        backgroundColor: selectedCategory === cat.name ? 'rgba(79,70,229,0.06)' : 'transparent'
+                      }}
+                    >
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                         <span style={{ fontSize: '20px' }}>{cat.emoji}</span>
                         <span style={{ fontSize: '14px', fontWeight: 500, color: '#475569', textTransform: 'capitalize' }}>{cat.name}</span>
@@ -383,6 +399,49 @@ export default function App() {
           </div>
         </div>
       </div>
+
+      {/* Category history panel */}
+      {selectedCategory && (
+        <div style={{ position: 'fixed', right: 24, top: 80, width: 420, height: '70vh', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, boxShadow: '0 10px 30px rgba(2,6,23,0.08)', overflowY: 'auto', padding: 16, zIndex: 60 }}>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+            <h4 style={{ margin: 0, fontWeight: 800 }}>{selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} - Lịch sử</h4>
+            <button onClick={() => setSelectedCategory(null)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#475569' }}>Đóng</button>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            {tasks.filter(t => t.category === selectedCategory).length === 0 ? (
+              <p style={{ color: '#64748b' }}>Chưa có công việc nào trong mục này.</p>
+            ) : (
+              tasks
+                .filter(t => t.category === selectedCategory)
+                .sort((a, b) => b.createdAt - a.createdAt)
+                .map(task => {
+                  const daysLeft = getDaysRemaining(task.deadline);
+                  const badgeColor = getDeadlineColor(daysLeft);
+                  return (
+                    <div key={task.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px', borderRadius: 8, background: '#fbfdff', border: '1px solid #f1f5f9' }}>
+                      <div style={{ display: 'flex', gap: 12, alignItems: 'center', flex: 1 }}>
+                        <div style={{ width: 28 }}>{task.completed ? <CheckCircle2 size={18} color="#4f46e5" /> : <Circle size={18} color="#cbd5e1" />}</div>
+                        <div style={{ flex: 1 }}>
+                          <div style={{ fontWeight: 600, color: task.completed ? '#94a3b8' : '#0f172a' }}>{task.text}</div>
+                          <div style={{ fontSize: 12, color: '#64748b' }}>{task.deadline ? `Hạn: ${task.deadline}` : ''} {task.createdAt ? ` • Thêm: ${new Date(task.createdAt).toLocaleDateString('vi-VN')}` : ''}</div>
+                        </div>
+                      </div>
+                      <div style={{ marginLeft: 12 }}>
+                        {daysLeft !== null && (
+                          <span style={{ display: 'inline-block', padding: '4px 8px', borderRadius: 6, background: badgeColor, color: '#fff', fontSize: 12 }}>
+                            {daysLeft < 0 ? `Quá hạn ${Math.abs(daysLeft)}d` : daysLeft === 0 ? 'Hôm nay' : `${daysLeft}d`}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  );
+                })
+            )}
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
