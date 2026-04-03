@@ -402,7 +402,9 @@ export default function App() {
 
       {/* Category history panel */}
       {selectedCategory && (
-        <div style={{ position: 'fixed', right: 24, top: 80, width: 420, height: '70vh', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, boxShadow: '0 10px 30px rgba(2,6,23,0.08)', overflowY: 'auto', padding: 16, zIndex: 60 }}>
+        <>
+          <div onClick={() => setSelectedCategory(null)} style={{ position: 'fixed', left: 0, top: 0, width: '100%', height: '100%', background: 'rgba(0,0,0,0.12)', zIndex: 50 }} />
+          <div style={{ position: 'fixed', right: 24, top: 80, width: 420, height: '70vh', background: '#fff', border: '1px solid #e2e8f0', borderRadius: 12, boxShadow: '0 10px 30px rgba(2,6,23,0.08)', overflowY: 'auto', padding: 16, zIndex: 60 }}>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
             <h4 style={{ margin: 0, fontWeight: 800 }}>{selectedCategory.charAt(0).toUpperCase() + selectedCategory.slice(1)} - Lịch sử</h4>
             <button onClick={() => setSelectedCategory(null)} style={{ border: 'none', background: 'transparent', cursor: 'pointer', color: '#475569' }}>Đóng</button>
@@ -421,7 +423,9 @@ export default function App() {
                   return (
                     <div key={task.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px', borderRadius: 8, background: '#fbfdff', border: '1px solid #f1f5f9' }}>
                       <div style={{ display: 'flex', gap: 12, alignItems: 'center', flex: 1 }}>
-                        <div style={{ width: 28 }}>{task.completed ? <CheckCircle2 size={18} color="#4f46e5" /> : <Circle size={18} color="#cbd5e1" />}</div>
+                        <button onClick={() => handleToggleTask(task.id)} style={{ width: 28, background: 'transparent', border: 'none', cursor: 'pointer' }} aria-label={task.completed ? 'Unmark completed' : 'Mark completed'}>
+                          {task.completed ? <CheckCircle2 size={18} color="#4f46e5" /> : <Circle size={18} color="#cbd5e1" />}
+                        </button>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontWeight: 600, color: task.completed ? '#94a3b8' : '#0f172a' }}>{task.text}</div>
                           <div style={{ fontSize: 12, color: '#64748b' }}>{task.deadline ? `Hạn: ${task.deadline}` : ''} {task.createdAt ? ` • Thêm: ${new Date(task.createdAt).toLocaleDateString('vi-VN')}` : ''}</div>
