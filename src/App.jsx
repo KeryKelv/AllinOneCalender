@@ -29,12 +29,13 @@ if (isConfigValid) {
 function SimpleCalendar({ currentMonth, selectedDate, onDateSelect, onMonthChange }) {
   const daysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
   const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay();
+  const adjustedFirstDay = firstDay === 0 ? 6 : firstDay - 1; // Convert to Monday-first week
   const days = [];
   
-  for (let i = 0; i < firstDay; i++) days.push(null);
+  for (let i = 0; i < adjustedFirstDay; i++) days.push(null);
   for (let i = 1; i <= daysInMonth(currentMonth); i++) days.push(i);
   
-  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const monthNames = ['Tháng 1', 'Tháng 2', 'Tháng 3', 'Tháng 4', 'Tháng 5', 'Tháng 6', 'Tháng 7', 'Tháng 8', 'Tháng 9', 'Tháng 10', 'Tháng 11', 'Tháng 12'];
   
   const calendarStyle = {
     display: 'grid',
@@ -52,7 +53,7 @@ function SimpleCalendar({ currentMonth, selectedDate, onDateSelect, onMonthChang
         </div>
       </div>
       <div style={{ ...calendarStyle, marginBottom: '8px' }}>
-        {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(day => (
+        {['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'].map(day => (
           <div key={day} style={{ textAlign: 'center', fontSize: '12px', fontWeight: 700, color: '#64748b' }}>{day}</div>
         ))}
       </div>
@@ -87,6 +88,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [newTask, setNewTask] = useState('');
   const [newCategory, setNewCategory] = useState('work');
+  const [newDeadline, setNewDeadline] = useState('');
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [timeTracking, setTimeTracking] = useState({});
@@ -124,17 +126,19 @@ export default function App() {
 
   const handleAddTask = async (e) => {
     e.preventDefault();
-    if (!newTask.trim() || !user || !isConfigValid) return;
+    if (!newTask.trim() || !newDeadline || !user || !isConfigValid) return;
     const taskId = Date.now().toString();
     const taskData = { 
       text: newTask.trim(), 
       completed: false, 
       category: newCategory,
       dueDate: selectedDate.toISOString().split('T')[0],
+      deadline: newDeadline,
       createdAt: Date.now() 
     };
     await setDoc(doc(db, 'users', user.uid, 'tasks', taskId), taskData);
     setNewTask('');
+    setNewDeadline('');
   };
 
   const handleToggleTask = async (id) => {
@@ -197,11 +201,31 @@ export default function App() {
     );
   }
 
-  const categoryEmojis = { work: '💼', personal: '🎯', family: '👨‍👩‍👧', freelance: '💻' };
-  const categories = ['work', 'personal', 'family', 'freelance'];
+  const categoryEmojis = { work: '💼', personal: '🎯' };
+  const categories = ['work', 'personal'];
   const tasksByCategory = categories.map(cat => ({ name: cat, emoji: categoryEmojis[cat], count: tasks.filter(t => t.category === cat).length }));
   const completedTasks = tasks.filter(t => t.completed).length;
   const todayTasks = tasks.filter(t => !t.completed && t.dueDate === selectedDate.toISOString().split('T')[0]);
+
+  // Calculate days remaining and warning color
+  const getDaysRemaining = (deadline) => {
+    if (!deadline) return null;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const deadlineDate = new Date(deadline);
+    deadlineDate.setHours(0, 0, 0, 0);
+    const daysLeft = Math.ceil((deadlineDate - today) / (1000 * 60 * 60 * 24));
+    return daysLeft;
+  };
+
+  const getDeadlineColor = (daysLeft) => {
+    if (daysLeft === null) return '#e5e7eb';
+    if (daysLeft < 0) return '#dc2626'; // Red - overdue
+    if (daysLeft === 0) return '#ea580c'; // Dark orange - today
+    if (daysLeft <= 3) return '#fa8c16'; // Orange - 1-3 days
+    if (daysLeft <= 7) return '#faad14'; // Yellow - 1-7 days
+    return '#52c41a'; // Green - more than 7 days
+  };
 
   return (
     <div style={{ height: '100vh', width: '100vw', background: 'linear-gradient(to bottom right, #f1f5f9 0%, #eef2ff 100%)', display: 'flex', fontFamily: 'system-ui', overflow: 'hidden' }}>
@@ -217,15 +241,11 @@ export default function App() {
         <nav style={{ flex: 1, padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {[
             { id: 'dashboard', label: 'Dashboard', icon: Home },
-            { id: 'my-tasks', label: 'My tasks', icon: Circle },
-            { id: 'notifications', label: 'Notifications', icon: Bell },
-            { id: 'settings', label: 'Settings', icon: Settings }
+            { id: 'my-tasks', label: 'My tasks', icon: Circle }
           ].map(item => (
             <button key={item.id} onClick={() => {}} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: 'rgba(100, 116, 139, 0.1)', color: '#cbd5e1', transition: 'all 0.2s', fontWeight: 500 }}>
               {item.id === 'dashboard' && <Home size={20} />}
               {item.id === 'my-tasks' && <Circle size={20} />}
-              {item.id === 'notifications' && <Bell size={20} />}
-              {item.id === 'settings' && <Settings size={20} />}
               {item.label}
             </button>
           ))}
@@ -269,20 +289,31 @@ export default function App() {
                   <button style={{ color: '#4f46e5', fontWeight: 700, backgroundColor: 'transparent', border: 'none', cursor: 'pointer', padding: '8px 12px', borderRadius: '6px' }}>+ New task</button>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
-                  {todayTasks.length > 0 ? todayTasks.map(task => (
-                    <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s' }}>
-                      <button onClick={() => handleToggleTask(task.id)} style={{ flexShrink: 0, backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }}>
-                        {task.completed ? <CheckCircle2 size={20} color="#4f46e5" /> : <Circle size={20} color="#cbd5e1" />}
-                      </button>
-                      <div style={{ flex: 1 }}>
-                        <p style={{ color: task.completed ? '#94a3b8' : '#0f172a', textDecoration: task.completed ? 'line-through' : 'none', fontWeight: task.completed ? 400 : 500, margin: '0 0 4px 0' }}>{task.text}</p>
-                        <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>{task.category}</p>
+                  {todayTasks.length > 0 ? todayTasks.map(task => {
+                    const daysLeft = getDaysRemaining(task.deadline);
+                    const bgColor = getDeadlineColor(daysLeft);
+                    return (
+                      <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s', backgroundColor: '#f9fafb' }}>
+                        <button onClick={() => handleToggleTask(task.id)} style={{ flexShrink: 0, backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }}>
+                          {task.completed ? <CheckCircle2 size={20} color="#4f46e5" /> : <Circle size={20} color="#cbd5e1" />}
+                        </button>
+                        <div style={{ flex: 1 }}>
+                          <p style={{ color: task.completed ? '#94a3b8' : '#0f172a', textDecoration: task.completed ? 'line-through' : 'none', fontWeight: task.completed ? 400 : 500, margin: '0 0 4px 0' }}>{task.text}</p>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                            <span style={{ fontSize: '11px', backgroundColor: '#e5e7eb', color: '#6b7280', padding: '2px 6px', borderRadius: '4px' }}>{task.category}</span>
+                            {daysLeft !== null && (
+                              <span style={{ fontSize: '11px', backgroundColor: bgColor, color: '#fff', padding: '2px 6px', borderRadius: '4px' }}>
+                                {daysLeft < 0 ? `Quá hạn ${Math.abs(daysLeft)}d` : daysLeft === 0 ? 'Hôm nay' : `${daysLeft}d`}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <button onClick={() => handleDeleteTask(task.id)} style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer', color: '#cbd5e1', transition: 'all 0.2s' }}>
+                          <Trash2 size={16} />
+                        </button>
                       </div>
-                      <button onClick={() => handleDeleteTask(task.id)} style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer', color: '#cbd5e1', transition: 'all 0.2s' }}>
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  )) : (
+                    );
+                  }) : (
                     <p style={{ fontSize: '14px', color: '#94a3b8', textAlign: 'center', padding: '16px 0' }}>No tasks for today</p>
                   )}
                 </div>
@@ -293,11 +324,12 @@ export default function App() {
                 <h4 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '16px', margin: 0, paddingBottom: '16px' }}>Add New Task</h4>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   <input type="text" value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder="What's your next task?" style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(79, 70, 229, 0.5)', backgroundColor: '#fff', outline: 'none' }} />
+                  <input type="date" value={newDeadline} onChange={(e) => setNewDeadline(e.target.value)} style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(79, 70, 229, 0.5)', backgroundColor: '#fff', outline: 'none' }} />
                   <div style={{ display: 'flex', gap: '12px' }}>
                     <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(79, 70, 229, 0.5)', backgroundColor: '#fff', fontSize: '14px' }}>
                       {categories.map(cat => <option key={cat} value={cat}>{categoryEmojis[cat]} {cat.charAt(0).toUpperCase() + cat.slice(1)}</option>)}
                     </select>
-                    <button type="submit" disabled={!newTask.trim()} style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: newTask.trim() ? '#4f46e5' : '#cbd5e1', color: '#fff', padding: '8px 24px', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: newTask.trim() ? 'pointer' : 'default', transition: 'all 0.2s' }}>
+                    <button type="submit" disabled={!newTask.trim() || !newDeadline} style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: (newTask.trim() && newDeadline) ? '#4f46e5' : '#cbd5e1', color: '#fff', padding: '8px 24px', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: (newTask.trim() && newDeadline) ? 'pointer' : 'default', transition: 'all 0.2s' }}>
                       <Plus size={20} /> Add
                     </button>
                   </div>
