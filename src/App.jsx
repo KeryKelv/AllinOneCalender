@@ -114,6 +114,15 @@ export default function App() {
     return () => unsubscribe();
   }, [user]);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      const now = new Date();
+      setSelectedDate(now);
+      setCurrentMonth(new Date(now.getFullYear(), now.getMonth(), 1));
+    }, 60 * 1000); // cập nhật mỗi phút để giữ cho lịch luôn đúng ngày
+    return () => clearInterval(timer);
+  }, []);
+
   const handleLogin = async () => {
     if (!isConfigValid) return;
     try { await signInWithPopup(auth, googleProvider); } catch (e) { console.error(e); }
@@ -206,7 +215,7 @@ export default function App() {
   const categories = ['work', 'personal'];
   const tasksByCategory = categories.map(cat => ({ name: cat, emoji: categoryEmojis[cat], count: tasks.filter(t => t.category === cat).length }));
   const completedTasks = tasks.filter(t => t.completed).length;
-  const todayTasks = tasks.filter(t => !t.completed && t.dueDate === selectedDate.toISOString().split('T')[0]);
+  const tasksList = tasks;
 
   // Calculate days remaining and warning color
   const getDaysRemaining = (deadline) => {
@@ -290,7 +299,7 @@ export default function App() {
                   <button style={{ color: '#4f46e5', fontWeight: 700, backgroundColor: 'transparent', border: 'none', cursor: 'pointer', padding: '8px 12px', borderRadius: '6px' }}>+ New task</button>
                 </div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
-                  {todayTasks.length > 0 ? todayTasks.map(task => {
+                  {tasksList.length > 0 ? tasksList.map(task => {
                     const daysLeft = getDaysRemaining(task.deadline);
                     const bgColor = getDeadlineColor(daysLeft);
                     return (
@@ -302,6 +311,11 @@ export default function App() {
                           <p style={{ color: task.completed ? '#94a3b8' : '#0f172a', textDecoration: task.completed ? 'line-through' : 'none', fontWeight: task.completed ? 400 : 500, margin: '0 0 4px 0' }}>{task.text}</p>
                           <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                             <span style={{ fontSize: '11px', backgroundColor: '#e5e7eb', color: '#6b7280', padding: '2px 6px', borderRadius: '4px' }}>{task.category}</span>
+                            {task.deadline && (
+                              <span style={{ fontSize: '11px', backgroundColor: '#c7d2fe', color: '#1d4ed8', padding: '2px 6px', borderRadius: '4px' }}>
+                                {task.deadline}
+                              </span>
+                            )}
                             {daysLeft !== null && (
                               <span style={{ fontSize: '11px', backgroundColor: bgColor, color: '#fff', padding: '2px 6px', borderRadius: '4px' }}>
                                 {daysLeft < 0 ? ('Quá hạn ' + Math.abs(daysLeft) + 'd') : daysLeft === 0 ? 'Hôm nay' : (daysLeft + 'd')}
@@ -315,7 +329,7 @@ export default function App() {
                       </div>
                     );
                   }) : (
-                    <p style={{ fontSize: '14px', color: '#94a3b8', textAlign: 'center', padding: '16px 0' }}>No tasks for today</p>
+                    <p style={{ fontSize: '14px', color: '#94a3b8', textAlign: 'center', padding: '16px 0' }}>No tasks yet</p>
                   )}
                 </div>
               </div>
@@ -445,6 +459,7 @@ export default function App() {
           </div>
         </div>
         </>
+      )}
 
     </div>
   );
