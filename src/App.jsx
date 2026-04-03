@@ -93,6 +93,9 @@ export default function App() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [timeTracking, setTimeTracking] = useState({});
   const [selectedCategory, setSelectedCategory] = useState(null);
+  const [trackItems, setTrackItems] = useState([]);
+  const [newTrack, setNewTrack] = useState('');
+  const [newTrackMode, setNewTrackMode] = useState('daily');
 
   useEffect(() => {
     if (!isConfigValid) { setLoading(false); return; }
@@ -217,6 +220,17 @@ export default function App() {
   const completedTasks = tasks.filter(t => t.completed).length;
   const tasksList = tasks;
 
+  const handleAddTrack = (e) => {
+    e.preventDefault();
+    if (!newTrack.trim()) return;
+    setTrackItems((prev) => [...prev, { id: Date.now().toString(), text: newTrack.trim(), mode: newTrackMode, done: false }]);
+    setNewTrack('');
+  };
+
+  const handleToggleTrack = (id) => {
+    setTrackItems((prev) => prev.map(item => item.id === id ? { ...item, done: !item.done } : item));
+  };
+
   // Calculate days remaining and warning color
   const getDaysRemaining = (deadline) => {
     if (!deadline) return null;
@@ -285,13 +299,13 @@ export default function App() {
         {/* Content Grid */}
         <div style={{ flex: 1, overflowY: 'auto', padding: '32px', display: 'flex', alignItems: 'flex-start' }}>
           <div style={{ display: 'flex', gap: '24px', width: '100%' }}>
-            {/* Left Column: Calendar - 1/4 */}
-            <div style={{ flex: '0 0 25%', minWidth: 0 }}>
+            {/* Left Column: Calendar */}
+            <div style={{ flex: '0 0 18%', minWidth: 0 }}>
               <SimpleCalendar currentMonth={currentMonth} selectedDate={selectedDate} onDateSelect={setSelectedDate} onMonthChange={setCurrentMonth} />
             </div>
 
-            {/* Middle Column: Tasks - 1/2 */}
-            <div style={{ flex: '0 0 50%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Middle Column: Tasks */}
+            <div style={{ flex: '0 0 60%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {/* My Tasks */}
               <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
                 <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
@@ -352,8 +366,8 @@ export default function App() {
               </form>
             </div>
 
-            {/* Right Column: Categories & Tracking - 1/4 */}
-            <div style={{ flex: '0 0 25%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            {/* Right Column: Categories & Tracking */}
+            <div style={{ flex: '0 0 22%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {/* My Categories */}
               <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
                 <h3 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '16px', margin: 0, paddingBottom: '16px' }}>My categories</h3>
@@ -388,16 +402,28 @@ export default function App() {
               {/* My Tracking */}
               <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
                 <h3 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '16px', margin: 0, paddingBottom: '16px' }}>My tracking</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '300px', overflowY: 'auto' }}>
-                  {tasks.filter(t => !t.completed).map(task => (
-                    <div key={task.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        <Clock size={16} color="#4f46e5" />
-                        <span style={{ fontSize: '14px', color: '#475569', textOverflow: 'ellipsis', overflow: 'hidden' }}>{task.text}</span>
+                <form onSubmit={handleAddTrack} style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
+                  <input type="text" value={newTrack} onChange={(e) => setNewTrack(e.target.value)} placeholder="What will you track?" style={{ padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }} />
+                  <select value={newTrackMode} onChange={(e) => setNewTrackMode(e.target.value)} style={{ padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }}>
+                    <option value="daily">Daily</option>
+                    <option value="once">One-time</option>
+                  </select>
+                  <button type="submit" style={{ padding: '8px 10px', borderRadius: '8px', border: 'none', backgroundColor: '#4f46e5', color: '#fff', fontWeight: 700, cursor: 'pointer' }}>Add tracking item</button>
+                </form>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
+                  {trackItems.length === 0 ? (
+                    <p style={{ fontSize: '13px', color: '#64748b', margin: 0 }}>No tracking items yet</p>
+                  ) : (
+                    trackItems.map(item => (
+                      <div key={item.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px', borderRadius: '8px', backgroundColor: item.done ? '#ecfdf5' : '#f8fafc', border: '1px solid #e2e8f0' }}>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <input type="checkbox" checked={item.done} onChange={() => handleToggleTrack(item.id)} />
+                          <span style={{ color: item.done ? '#6b7280' : '#0f172a', textDecoration: item.done ? 'line-through' : 'none' }}>{item.text}</span>
+                        </label>
+                        <span style={{ fontSize: '11px', color: '#475569', backgroundColor: '#e0e7ff', padding: '2px 6px', borderRadius: '6px' }}>{item.mode}</span>
                       </div>
-                      <input type="text" placeholder="time" value={timeTracking[task.id] || ''} onChange={(e) => setTimeTracking({...timeTracking, [task.id]: e.target.value})} style={{ width: '64px', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', border: '1px solid #e2e8f0', outline: 'none' }} />
-                    </div>
-                  ))}
+                    ))
+                  )}
                 </div>
               </div>
 
