@@ -1,10 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Trash2, Circle, CheckCircle2, CalendarDays, AlarmClock, LogOut, Loader2, Target, CheckCircle, Sparkles, AlertTriangle, Key, MoreVertical, Edit2, User, Clock, TrendingUp, Flame, Trophy, GripVertical, X, ChevronDown } from 'lucide-react';
+import { Plus, Trash2, Circle, CheckCircle2, LogOut, Loader2, Target, Search, Calendar, Clock, Settings, Bell, Home } from 'lucide-react';
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
 
-// ⚠️ BƯỚC QUAN TRỌNG NHẤT: Thay thông tin từ Firebase Console của bạn vào đây
 const firebaseConfig = {
   apiKey: "AIzaSyCpWm7T2pez61uWRpObqjwAmzjbbvzxwLA",
   authDomain: "todo-mini-bk.firebaseapp.com",
@@ -15,7 +14,6 @@ const firebaseConfig = {
   measurementId: "G-EP2WE8Q287"
 };
 
-// Kiểm tra xem bạn đã thay Key chưa
 const isConfigValid = firebaseConfig.apiKey !== "YOUR_API_KEY" && firebaseConfig.apiKey.trim() !== "";
 
 let app, auth, db, googleProvider;
@@ -26,26 +24,51 @@ if (isConfigValid) {
   googleProvider = new GoogleAuthProvider();
 }
 
+// Calendar Component
+function SimpleCalendar({ currentMonth, selectedDate, onDateSelect }) {
+  const daysInMonth = (date) => new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+  const firstDay = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1).getDay();
+  const days = [];
+  
+  for (let i = 0; i < firstDay; i++) days.push(null);
+  for (let i = 1; i <= daysInMonth(currentMonth); i++) days.push(i);
+  
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  
+  return (
+    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="font-bold text-slate-900">{monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}</h3>
+        <div className="flex gap-2">
+          <button onClick={() => new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1)} className="p-1 hover:bg-slate-100 rounded">←</button>
+          <button onClick={() => new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1)} className="p-1 hover:bg-slate-100 rounded">→</button>
+        </div>
+      </div>
+      <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-600 mb-2">
+        <div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div><div>Su</div>
+      </div>
+      <div className="grid grid-cols-7 gap-1">
+        {days.map((day, idx) => (
+          <button key={idx} onClick={() => day && onDateSelect(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))} 
+            className={`p-2 rounded text-sm font-bold transition ${day === selectedDate?.getDate() && currentMonth.getMonth() === selectedDate?.getMonth() ? 'bg-amber-300 text-slate-900' : day ? 'hover:bg-slate-100 text-slate-700' : 'text-slate-200'}`}>
+            {day}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   const [tasks, setTasks] = useState([]);
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [newTask, setNewTask] = useState('');
-  const [newPriority, setNewPriority] = useState('medium');
-  const [newDeadline, setNewDeadline] = useState('');
   const [newCategory, setNewCategory] = useState('work');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterCategory, setFilterCategory] = useState('all');
-  const [expandedTask, setExpandedTask] = useState(null);
-  const [showStats, setShowStats] = useState(false);
-  const [taskNotes, setTaskNotes] = useState({});
-  const [subtasks, setSubtasks] = useState({});
-  const [assignedTo, setAssignedTo] = useState({});
-  const [timeSpent, setTimeSpent] = useState({});
-  const [recurring, setRecurring] = useState({});
-  const [draggedTask, setDraggedTask] = useState(null);
-  const [newRecurring, setNewRecurring] = useState('none');
-  const [newTimeEstimate, setNewTimeEstimate] = useState('');
+  const [selectedDate, setSelectedDate] = useState(new Date());
+  const [currentMonth, setCurrentMonth] = useState(new Date());
+  const [timeTracking, setTimeTracking] = useState({});
+  const [activeSection, setActiveSection] = useState('dashboard');
 
   useEffect(() => {
     if (!isConfigValid) { setLoading(false); return; }
@@ -63,14 +86,6 @@ export default function App() {
       const taskList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       taskList.sort((a, b) => a.createdAt - b.createdAt);
       setTasks(taskList);
-      // Initialize recurring state from tasks
-      const recurringMap = {};
-      taskList.forEach(task => {
-        if (task.recurring && task.recurring !== 'none') {
-          recurringMap[task.id] = task.recurring;
-        }
-      });
-      setRecurring(recurringMap);
     });
     return () => unsubscribe();
   }, [user]);
@@ -93,18 +108,12 @@ export default function App() {
     const taskData = { 
       text: newTask.trim(), 
       completed: false, 
-      priority: newPriority, 
-      deadline: newDeadline || null, 
-      category: newCategory, 
-      recurring: newRecurring,
-      timeEstimate: newTimeEstimate || null,
+      category: newCategory,
+      dueDate: selectedDate.toISOString().split('T')[0],
       createdAt: Date.now() 
     };
     await setDoc(doc(db, 'users', user.uid, 'tasks', taskId), taskData);
     setNewTask('');
-    setNewDeadline('');
-    setNewRecurring('none');
-    setNewTimeEstimate('');
   };
 
   const handleToggleTask = async (id) => {
@@ -118,50 +127,36 @@ export default function App() {
     await deleteDoc(doc(db, 'users', user.uid, 'tasks', id));
   };
 
-  // --- GIAO DIỆN KHI CHƯA CÀI ĐẶT KEY ---
   if (!isConfigValid) {
     return (
       <div className="h-screen w-full bg-slate-50 flex items-center justify-center p-6 font-sans">
         <div className="w-full bg-white/70 p-8 md:p-12 rounded-xl shadow-lg text-center border border-rose-100">
-          <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-6"><Key size={40} /></div>
-          <h1 className="text-2xl font-black text-slate-900 mb-4 tracking-tight uppercase">Lỗi API Key</h1>
-          <div className="bg-rose-50/50 p-6 rounded-2xl text-left mb-6 border border-rose-100 space-y-3">
-            <p className="text-slate-600 text-xs leading-relaxed">Khoa ơi, bạn chưa thay <strong>Firebase Config</strong> thực vào code rồi!</p>
-            <p className="text-slate-600 text-[11px]">Vào <strong>Firebase Console &gt; Project Settings</strong>, copy cái đoạn mã dài dài và dán vào biến <code>firebaseConfig</code> ở đầu file này nhé.</p>
-          </div>
+          <h1 className="text-2xl font-black text-slate-900 mb-4">Lỗi API Key</h1>
+          <p className="text-slate-600 text-sm">Vui lòng thay Firebase Config trong file App.jsx</p>
         </div>
       </div>
     );
   }
 
   if (loading) {
-    return (
-      <div className="h-screen w-full bg-slate-50 flex flex-col items-center justify-center"><Loader2 className="animate-spin text-indigo-600 mb-4" size={40} /><p className="text-slate-400 font-black text-[10px] tracking-widest uppercase text-center">Đang kết nối Cloud...</p></div>
-    );
+    return <div className="h-screen w-full bg-slate-50 flex flex-col items-center justify-center"><Loader2 className="animate-spin text-indigo-600 mb-4" size={40} /></div>;
   }
 
   if (!user) {
     return (
       <div className="h-screen w-full bg-gradient-to-br from-indigo-600 via-purple-900 to-slate-950 flex items-center justify-center p-6 overflow-hidden relative">
-        {/* Background Decorations */}
         <div className="absolute top-20 left-10 w-72 h-72 bg-indigo-500/20 rounded-full blur-3xl"></div>
         <div className="absolute bottom-20 right-10 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl"></div>
         
         <div className="relative z-10 w-full">
-          {/* Card */}
           <div className="bg-white/10 backdrop-blur-md p-12 rounded-3xl border border-white/20 text-center shadow-2xl max-w-lg mx-auto">
-            {/* Icon Container */}
             <div className="mb-8 flex justify-center">
               <div className="w-24 h-24 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center text-white shadow-2xl shadow-indigo-500/50">
                 <Target size={48} strokeWidth={2} />
               </div>
             </div>
-            
-            {/* Title */}
             <h1 className="text-4xl font-black text-white mb-3 tracking-tight">Kế hoạch BK</h1>
-            <p className="text-indigo-100 text-base mb-10 font-medium">Đồng bộ vĩnh viễn trên mọi thiết bị.</p>
-            
-            {/* Button Container with Background */}
+            <p className="text-indigo-100 text-base mb-10 font-medium">Quản lý công việc giống Organizo</p>
             <div className="bg-gradient-to-r from-indigo-400/20 to-purple-400/20 p-6 rounded-2xl mb-8 border border-indigo-300/30 backdrop-blur">
               <button onClick={handleLogin} className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white py-4 px-6 rounded-xl font-bold transition-all active:scale-95 shadow-lg shadow-indigo-600/50 hover:shadow-xl hover:shadow-indigo-500/70 text-base">
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
@@ -170,158 +165,166 @@ export default function App() {
                   <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#fff"/>
                   <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#fff"/>
                 </svg>
-                Vào bằng Google
+                Đăng nhập với Google
               </button>
             </div>
-            
-            {/* Security Info */}
-            <div className="space-y-2 border-t border-white/10 pt-6">
-              <p className="text-indigo-200 text-xs font-semibold">🔒 Bảo mật với Firebase + Google</p>
-              <p className="text-indigo-300 text-xs">Dữ liệu của bạn được bảo vệ toàn bộ</p>
-            </div>
           </div>
-          
-          {/* Footer removed */}
         </div>
       </div>
     );
   }
 
+  const categoryEmojis = { work: '💼', personal: '🎯', family: '👨‍👩‍👧', freelance: '💻' };
+  const categories = ['work', 'personal', 'family', 'freelance'];
+  const tasksByCategory = categories.map(cat => ({ name: cat, emoji: categoryEmojis[cat], count: tasks.filter(t => t.category === cat).length }));
+  const completedTasks = tasks.filter(t => t.completed).length;
+  const todayTasks = tasks.filter(t => !t.completed && t.dueDate === selectedDate.toISOString().split('T')[0]);
+
   return (
-    <div className="min-h-screen w-screen bg-gradient-to-br from-slate-50 to-slate-100 grid place-items-center selection:bg-indigo-100 font-sans overflow-hidden">
-      {/* Fixed logout button in top-right */}
-      <button onClick={handleLogout} aria-label="Đăng xuất" className="fixed top-4 right-6 left-auto z-50 flex items-center gap-2 bg-white/95 text-slate-900 py-2 px-3 rounded-full shadow-2xl border border-slate-200 hover:scale-105 transition-transform">
-        <LogOut size={18} />
-        <span className="hidden sm:inline font-semibold">Đăng xuất</span>
-      </button>
-      <main style={{ width: '100%', maxWidth: '64rem', padding: '0 2rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-        {/* Header */}
-        <div className="py-4 flex items-center justify-center border-b border-slate-50 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex-shrink-0 w-full">
-          <div className="w-full">
-            <div className="flex items-center justify-center gap-2 mb-1 w-full">
-                <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-lg shadow-emerald-400"></div>
-              </div>
-              <h2 className="text-2xl font-black text-white tracking-tight text-center">Việc của Khoa 👋</h2>
+    <div className="h-screen w-screen bg-gradient-to-br from-slate-50 to-slate-100 flex font-sans overflow-hidden">
+      {/* ===== SIDEBAR ===== */}
+      <div className="w-64 bg-gradient-to-b from-slate-900 to-slate-800 text-white flex flex-col shadow-lg overflow-y-auto">
+        {/* Logo */}
+        <div className="p-6 border-b border-slate-700">
+          <h1 className="text-2xl font-black flex items-center gap-2"><span className="text-yellow-400">🎯</span> Organizo</h1>
+          <p className="text-xs text-slate-400 mt-1">{user?.displayName || user?.email}</p>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 p-4 space-y-2">
+          {[
+            { id: 'dashboard', label: 'Dashboard', icon: Home },
+            { id: 'my-tasks', label: 'My tasks', icon: Circle },
+            { id: 'notifications', label: 'Notifications', icon: Bell },
+            { id: 'settings', label: 'Settings', icon: Settings }
+          ].map(item => {
+            const Icon = item.icon;
+            return (
+              <button key={item.id} onClick={() => setActiveSection(item.id)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${activeSection === item.id ? 'bg-indigo-600 text-white font-bold' : 'text-slate-300 hover:bg-slate-700'}`}>
+                <Icon size={20} /> {item.label}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* Logout */}
+        <div className="p-4 border-t border-slate-700">
+          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-700 transition">
+            <LogOut size={20} /> Log out
+          </button>
+        </div>
+      </div>
+
+      {/* ===== MAIN CONTENT ===== */}
+      <div className="flex-1 overflow-hidden flex flex-col">
+        {/* Top Bar */}
+        <div className="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shadow-sm">
+          <h2 className="text-2xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Dashboard</h2>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search size={20} className="absolute left-3 top-3 text-slate-400" />
+              <input type="text" placeholder="Search..." className="pl-10 pr-4 py-2 rounded-lg bg-slate-100 border border-slate-300 focus:border-indigo-500 outline-none" />
+            </div>
           </div>
         </div>
 
-        {/* Input Section */}
-        <div className="py-4 bg-slate-50/50 border-b border-slate-100 flex-shrink-0 w-full">
-          {/* Add Task Form */}
-          <form onSubmit={handleAddTask} className="w-full p-4 space-y-3 bg-transparent max-w-3xl mx-auto">
-            {/* Task Input */}
-            <div className="relative">
-              <input type="text" value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder="What's your next task?" className="w-full pl-4 pr-12 py-3 rounded-lg border-none bg-slate-50 text-slate-800 font-bold text-sm shadow-inner outline-none ring-2 ring-transparent focus:ring-indigo-500/10 transition-all" />
-              <button type="submit" disabled={!newTask.trim()} className="absolute right-2 top-2 w-9 h-9 bg-gradient-to-br from-indigo-600 to-indigo-700 text-white rounded-lg shadow-lg shadow-indigo-300 flex items-center justify-center disabled:bg-slate-300 transition-all active:scale-90 hover:scale-105"><Plus size={20} strokeWidth={3} /></button>
+        {/* Content Grid */}
+        <div className="flex-1 overflow-auto p-8">
+          <div className="grid grid-cols-4 gap-6 mb-6">
+            {/* Left Column: Calendar */}
+            <div className="col-span-1">
+              <SimpleCalendar currentMonth={currentMonth} selectedDate={selectedDate} onDateSelect={setSelectedDate} />
             </div>
-            
-            {/* Options Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-              {/* Category Box */}
-              <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-3 rounded-lg border border-indigo-200 shadow-sm">
-                <label className="text-xs font-black text-indigo-700 uppercase mb-1 block">📁 Category</label>
-                <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="w-full p-2 rounded-md bg-white border border-indigo-300 text-xs font-bold text-indigo-700 outline-none cursor-pointer hover:bg-indigo-50 transition-colors">
-                  <option value="work">💼 Work</option>
-                  <option value="personal">🎯 Personal</option>
-                </select>
-              </div>
-              
-              {/* Priority Box */}
-              <div className="bg-gradient-to-br from-amber-50 to-amber-100 p-3 rounded-lg border border-amber-200 shadow-sm">
-                <label className="text-xs font-black text-amber-700 uppercase mb-1 block">🔥 Priority</label>
-                <select value={newPriority} onChange={(e) => setNewPriority(e.target.value)} className="w-full p-2 rounded-md bg-white border border-amber-300 text-xs font-bold text-amber-700 outline-none cursor-pointer hover:bg-amber-50 transition-colors">
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
-              </div>
-              
-              {/* Deadline Box */}
-              <div className="bg-gradient-to-br from-rose-50 to-rose-100 p-3 rounded-lg border border-rose-200 shadow-sm">
-                <label className="text-xs font-black text-rose-700 uppercase mb-1 block">📅 Deadline</label>
-                <input type="date" value={newDeadline} onChange={(e) => setNewDeadline(e.target.value)} className="w-full p-2 rounded-md bg-white border border-rose-300 text-xs font-bold text-rose-700 outline-none cursor-pointer hover:bg-rose-50 transition-colors" />
-              </div>
-            </div>
-          </form>
-        </div>
 
-        {/* Task List */}
-        <div className="pb-6 space-y-2 overflow-y-auto pt-3 w-full max-h-[60vh]">
-          {tasks.length === 0 ? null : (
-            <div className="grid grid-cols-1 gap-2">
-              {tasks.length === 0 ? (
-                <div className="py-6 text-center opacity-40">
-                  <p className="text-xs font-semibold">No tasks found</p>
+            {/* Middle Columns: Tasks & Comments */}
+            <div className="col-span-2 space-y-6">
+              {/* My Tasks */}
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="font-bold text-slate-900">My tasks ({tasks.filter(t => !t.completed).length})</h3>
+                  <button className="text-indigo-600 font-bold hover:bg-indigo-50 px-3 py-1 rounded">+ New task</button>
                 </div>
-              ) : (
-                tasks.map((task, idx) => (
-                    <div key={task.id} draggable onDragStart={() => setDraggedTask(task.id)} style={{ animation: `slideIn 0.3s ease-out ${idx * 0.05}s both` }} className={`group p-3 border-b flex items-start gap-3 transition-all duration-300 hover:bg-slate-50 text-sm ${task.completed ? 'opacity-50' : ''}`}>
-                      <div className="flex-shrink-0 pt-0.5"><GripVertical size={16} className="text-slate-300" /></div>
-                      <button onClick={() => handleToggleTask(task.id)} className={`flex-shrink-0 transition-all transform active:scale-75 ${task.completed ? 'text-indigo-500' : 'text-slate-300 hover:text-indigo-400'}`}>{task.completed ? <CheckCircle2 size={24} strokeWidth={2.5} /> : <Circle size={24} strokeWidth={2} />}</button>
-                      <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setExpandedTask(expandedTask === task.id ? null : task.id)}>
-                        <div className="flex items-start justify-between gap-2 mb-1">
-                          <p className={`font-bold leading-snug transition-all truncate ${task.completed ? 'text-slate-300 line-through' : 'text-slate-900'}`}>
-                            <span className="pill pill--slate">{task.text}</span>
-                          </p>
-                          <span className={`flex-shrink-0 text-sm font-semibold pill ${task.priority === 'high' ? 'pill--rose' : task.priority === 'medium' ? 'pill--amber' : 'pill--emerald'}`}>{task.priority === 'high' ? 'HIGH' : task.priority === 'medium' ? 'MED' : 'LOW'}</span>
-                        </div>
-                        <div className="flex items-center gap-2 flex-wrap text-xs task-meta">
-                          <span className="pill pill--indigo font-semibold">{task.category === 'work' ? '💼 Work' : task.category === 'personal' ? '🎯 Personal' : task.category === 'health' ? '💪 Health' : '🛛'}</span>
-                          {task.deadline && <span className="pill pill--slate">📅 {new Date(task.deadline).toLocaleDateString('vi-VN')}</span>}
-                          {recurring[task.id] && <span className="pill pill--purple font-semibold">🔄 {recurring[task.id]}</span>}
-                          {timeSpent[task.id] && <span className="pill pill--blue font-semibold">⏱️ {timeSpent[task.id]}h</span>}
-                        </div>
-
-                        {/* Expanded Details */}
-                        {expandedTask === task.id && (
-                          <div className="mt-3 pt-3 border-t border-slate-100 space-y-2 animate-fade-in">
-                            <div>
-                              <label className="text-xs font-bold text-slate-600">📝 Notes</label>
-                              <input type="text" value={taskNotes[task.id] || ''} onChange={(e) => setTaskNotes({...taskNotes, [task.id]: e.target.value})} placeholder="Add notes..." className="w-full mt-0.5 p-1.5 rounded bg-slate-50 border border-slate-200 text-xs outline-none focus:ring-2 focus:ring-indigo-300" />
-                            </div>
-                            <div>
-                              <label className="text-xs font-bold text-slate-600">✓ Subtasks</label>
-                              <div className="space-y-0.5 mt-0.5">
-                                {(subtasks[task.id] || []).map((st, i) => (
-                                  <div key={i} className="flex items-center gap-1.5 p-1.5 bg-slate-50 rounded">
-                                    <input type="checkbox" defaultChecked className="w-3 h-3" />
-                                    <span className="text-xs flex-1">{st}</span>
-                                    <button onClick={() => setSubtasks({...subtasks, [task.id]: subtasks[task.id].filter((_, idx) => idx !== i)})} className="text-slate-300 hover:text-rose-500"><X size={12} /></button>
-                                  </div>
-                                ))}
-                                <input type="text" placeholder="Add subtask..." onKeyPress={(e) => {
-                                  if (e.key === 'Enter' && e.target.value.trim()) {
-                                    setSubtasks({...subtasks, [task.id]: [...(subtasks[task.id] || []), e.target.value]});
-                                    e.target.value = '';
-                                  }
-                                }} className="w-full p-1.5 rounded bg-white border border-slate-200 text-xs outline-none focus:ring-2 focus:ring-indigo-300" />
-                              </div>
-                            </div>
-                            <div className="grid grid-cols-2 gap-1.5">
-                              <div>
-                                <label className="text-xs font-bold text-slate-600">⏱️ Hours</label>
-                                <input type="number" value={timeSpent[task.id] || ''} onChange={(e) => setTimeSpent({...timeSpent, [task.id]: e.target.value})} placeholder="0" className="w-full mt-0.5 p-1.5 rounded bg-slate-50 border border-slate-200 text-xs outline-none focus:ring-2 focus:ring-indigo-300" />
-                              </div>
-                              <div>
-                                <label className="text-xs font-bold text-slate-600">👤 Assigned</label>
-                                <input type="text" value={assignedTo[task.id] || ''} onChange={(e) => setAssignedTo({...assignedTo, [task.id]: e.target.value})} placeholder="Name" className="w-full mt-0.5 p-1.5 rounded bg-slate-50 border border-slate-200 text-xs outline-none focus:ring-2 focus:ring-indigo-300" />
-                              </div>
-                            </div>
-                          </div>
-                        )}
+                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                  {todayTasks.length > 0 ? todayTasks.map(task => (
+                    <div key={task.id} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-lg transition">
+                      <button onClick={() => handleToggleTask(task.id)} className="flex-shrink-0">
+                        {task.completed ? <CheckCircle2 size={20} className="text-indigo-500" /> : <Circle size={20} className="text-slate-400" />}
+                      </button>
+                      <div className="flex-1">
+                        <p className={task.completed ? 'line-through text-slate-400' : 'text-slate-900 font-medium'}>{task.text}</p>
+                        <p className="text-xs text-slate-500">{task.category}</p>
                       </div>
-                      <button onClick={() => handleDeleteTask(task.id)} className="text-slate-200 hover:text-rose-500 p-1 opacity-0 group-hover:opacity-100 transition-all flex-shrink-0 hover:scale-110"><Trash2 size={18} strokeWidth={2} /></button>
+                      <button onClick={() => handleDeleteTask(task.id)} className="text-slate-300 hover:text-rose-500"><Trash2 size={16} /></button>
                     </div>
-                  ))
-              )}
-            </div>
-          )}
-        </div>
+                  )) : (
+                    <p className="text-sm text-slate-500 text-center py-4">No tasks for today</p>
+                  )}
+                </div>
+              </div>
 
-        <div className="py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center gap-2 flex-shrink-0 w-full">
-          <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-lg shadow-emerald-400"></div>
+              {/* Add Task Form */}
+              <form onSubmit={handleAddTask} className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-200">
+                <h4 className="font-bold text-slate-900 mb-4">Add New Task</h4>
+                <div className="space-y-3">
+                  <input type="text" value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder="What's your next task?" className="w-full px-4 py-3 rounded-lg border border-indigo-300 bg-white focus:border-indigo-500 outline-none" />
+                  <div className="flex gap-3">
+                    <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="flex-1 px-4 py-2 rounded-lg border border-indigo-300 bg-white text-sm">
+                      {categories.map(cat => <option key={cat} value={cat}>{categoryEmojis[cat]} {cat.charAt(0).toUpperCase() + cat.slice(1)}</option>)}
+                    </select>
+                    <button type="submit" disabled={!newTask.trim()} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white px-6 py-2 rounded-lg font-bold transition">
+                      <Plus size={20} /> Add
+                    </button>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            {/* Right Column: Categories & Tracking */}
+            <div className="col-span-1 space-y-6">
+              {/* My Categories */}
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 className="font-bold text-slate-900 mb-4">My categories</h3>
+                <div className="space-y-3">
+                  {tasksByCategory.map(cat => (
+                    <div key={cat.name} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl">{cat.emoji}</span>
+                        <span className="text-sm font-medium text-slate-700 capitalize">{cat.name}</span>
+                      </div>
+                      <span className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded">{cat.count}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* My Tracking */}
+              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+                <h3 className="font-bold text-slate-900 mb-4">My tracking</h3>
+                <div className="space-y-3 max-h-[300px] overflow-y-auto">
+                  {tasks.filter(t => !t.completed).map(task => (
+                    <div key={task.id} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition">
+                      <div className="flex items-center gap-2">
+                        <Clock size={16} className="text-indigo-500" />
+                        <span className="text-sm text-slate-700 truncate">{task.text}</span>
+                      </div>
+                      <input type="text" placeholder="time" value={timeTracking[task.id] || ''} onChange={(e) => setTimeTracking({...timeTracking, [task.id]: e.target.value})} className="w-16 px-2 py-1 rounded text-xs border border-slate-200 focus:border-indigo-500 outline-none" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 rounded-2xl">
+                <div className="text-center">
+                  <p className="text-sm opacity-90">Progress</p>
+                  <p className="text-3xl font-black">{completedTasks}/{tasks.length}</p>
+                  <p className="text-xs opacity-75 mt-2">Tasks completed</p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
+      </div>
     </div>
   );
 }
