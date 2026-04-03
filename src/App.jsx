@@ -195,9 +195,9 @@ export default function App() {
         <span className="hidden sm:inline font-semibold">Đăng xuất</span>
       </button>
       <div className="w-full flex flex-col overflow-hidden items-center justify-center">
-        
+        <main className="w-full max-w-5xl mx-auto px-8">
         {/* Header */}
-        <div className="px-8 py-4 flex items-center justify-center border-b border-slate-50 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex-shrink-0 w-full max-w-5xl mx-auto">
+        <div className="py-4 flex items-center justify-center border-b border-slate-50 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex-shrink-0 w-full">
           <div className="w-full">
             <div className="flex items-center justify-center gap-2 mb-1 w-full">
                 <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shadow-lg shadow-emerald-400"></div>
@@ -207,7 +207,7 @@ export default function App() {
         </div>
 
         {/* Input Section */}
-        <div className="px-8 py-4 bg-slate-50/50 border-b border-slate-100 flex-shrink-0 w-full max-w-5xl mx-auto">
+        <div className="py-4 bg-slate-50/50 border-b border-slate-100 flex-shrink-0 w-full">
           {/* Add Task Form */}
           <form onSubmit={handleAddTask} className="w-full p-4 space-y-3 bg-transparent max-w-3xl mx-auto">
             {/* Task Input */}
@@ -247,7 +247,7 @@ export default function App() {
         </div>
 
         {/* Task List */}
-        <div className="px-8 pb-6 space-y-2 overflow-y-auto pt-3 w-full max-w-5xl mx-auto max-h-[60vh]">
+        <div className="pb-6 space-y-2 overflow-y-auto pt-3 w-full max-h-[60vh]">
           {tasks.length === 0 ? null : (
             <div className="grid grid-cols-1 gap-2">
               {tasks.length === 0 ? (
@@ -319,9 +319,10 @@ export default function App() {
           )}
         </div>
 
-        <div className="px-8 py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center gap-2 flex-shrink-0 w-full max-w-5xl mx-auto">
+        <div className="py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center gap-2 flex-shrink-0 w-full">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-lg shadow-emerald-400"></div>
         </div>
+        </main>
       </div>
     </div>
   );
