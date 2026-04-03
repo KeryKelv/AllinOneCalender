@@ -195,7 +195,7 @@ export default function App() {
         <span className="hidden sm:inline font-semibold">Đăng xuất</span>
       </button>
       <div className="w-full flex flex-col overflow-hidden items-center justify-center">
-        <main className="w-full max-w-5xl mx-auto px-8">
+        <main style={{ margin: '0 auto', maxWidth: '64rem', padding: '0 2rem' }}>
         {/* Header */}
         <div className="py-4 flex items-center justify-center border-b border-slate-50 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex-shrink-0 w-full">
           <div className="w-full">
