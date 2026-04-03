@@ -252,7 +252,7 @@ export default function App() {
   };
 
   return (
-    <div style={{ height: '100vh', width: '100vw', background: 'linear-gradient(to bottom right, #f1f5f9 0%, #eef2ff 100%)', display: 'flex', fontFamily: 'system-ui', overflow: 'hidden' }}>
+    <div style={{ height: '100vh', width: '100vw', background: 'linear-gradient(to bottom right, #f1f5f9 0%, #eef2ff 100%)', display: 'flex', justifyContent: 'flex-start', paddingLeft: '20px', fontFamily: 'system-ui', overflow: 'hidden' }}>
       {/* ===== SIDEBAR ===== */}
       <div style={{ width: '256px', background: 'linear-gradient(to bottom, #0f172a, #1e293b)', color: '#fff', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 25px rgba(0,0,0,0.1)', overflowY: 'auto' }}>
         {/* Logo */}
@@ -287,7 +287,7 @@ export default function App() {
       <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         {/* Top Bar */}
         <div style={{ backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', padding: '16px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
-          <h2 style={{ fontSize: '28px', fontWeight: 900, background: 'linear-gradient(to right, #4f46e5, #7c3aed)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0 }}>Dashboard</h2>
+          <h2 style={{ fontSize: '28px', fontWeight: 900, background: 'linear-gradient(to right, #4f46e5, #7c3aed)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0 }}>My task</h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
             <div style={{ position: 'relative' }}>
               <Search size={20} style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} />
@@ -367,7 +367,7 @@ export default function App() {
             </div>
 
             {/* Right Column: Categories & Tracking */}
-            <div style={{ flex: '0 0 22%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div style={{ flex: '0 0 22%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '24px', paddingRight: '12px' }}>
               {/* My Categories */}
               <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
                 <h3 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '16px', margin: 0, paddingBottom: '16px' }}>My categories</h3>
@@ -400,7 +400,7 @@ export default function App() {
               </div>
 
               {/* My Tracking */}
-              <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
+              <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0', marginLeft: '4px', marginRight: '4px' }}>
                 <h3 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '16px', margin: 0, paddingBottom: '16px' }}>My tracking</h3>
                 <form onSubmit={handleAddTrack} style={{ display: 'flex', flexDirection: 'column', gap: '8px', marginBottom: '12px' }}>
                   <input type="text" value={newTrack} onChange={(e) => setNewTrack(e.target.value)} placeholder="What will you track?" style={{ padding: '8px 10px', borderRadius: '8px', border: '1px solid #cbd5e1', outline: 'none' }} />
