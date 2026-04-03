@@ -304,7 +304,7 @@ export default function App() {
                             <span style={{ fontSize: '11px', backgroundColor: '#e5e7eb', color: '#6b7280', padding: '2px 6px', borderRadius: '4px' }}>{task.category}</span>
                             {daysLeft !== null && (
                               <span style={{ fontSize: '11px', backgroundColor: bgColor, color: '#fff', padding: '2px 6px', borderRadius: '4px' }}>
-                                {daysLeft < 0 ? `Quá hạn ${Math.abs(daysLeft)}d` : daysLeft === 0 ? 'Hôm nay' : `${daysLeft}d`}
+                                {daysLeft < 0 ? ('Quá hạn ' + Math.abs(daysLeft) + 'd') : daysLeft === 0 ? 'Hôm nay' : (daysLeft + 'd')}
                               </span>
                             )}
                           </div>
