@@ -229,8 +229,8 @@ export default function App() {
         </div>
 
         {/* Content Grid */}
-        <div className="flex-1 overflow-auto p-8">
-          <div style={{ display: 'flex', gap: '24px' }}>
+        <div className="flex-1 overflow-auto p-8" style={{ display: 'flex', alignItems: 'flex-start' }}>
+          <div style={{ display: 'flex', gap: '24px', width: '100%' }}>
             {/* Left Column: Calendar - 1/4 */}
             <div style={{ flex: '0 0 25%', minWidth: 0 }}>
               <SimpleCalendar currentMonth={currentMonth} selectedDate={selectedDate} onDateSelect={setSelectedDate} onMonthChange={setCurrentMonth} />
