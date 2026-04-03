@@ -194,8 +194,7 @@ export default function App() {
         <LogOut size={18} />
         <span className="hidden sm:inline font-semibold">Đăng xuất</span>
       </button>
-      <div className="w-full flex flex-col overflow-hidden items-center justify-center">
-        <main style={{ margin: '0 auto', maxWidth: '64rem', padding: '0 2rem' }}>
+      <main style={{ width: '100%', maxWidth: '64rem', padding: '0 2rem', overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         {/* Header */}
         <div className="py-4 flex items-center justify-center border-b border-slate-50 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex-shrink-0 w-full">
           <div className="w-full">
@@ -322,8 +321,7 @@ export default function App() {
         <div className="py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-slate-900 flex items-center justify-center gap-2 flex-shrink-0 w-full">
           <div className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-lg shadow-emerald-400"></div>
         </div>
-        </main>
-      </div>
+      </main>
     </div>
   );
 }
