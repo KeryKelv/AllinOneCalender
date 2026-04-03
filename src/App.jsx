@@ -230,14 +230,14 @@ export default function App() {
 
         {/* Content Grid */}
         <div className="flex-1 overflow-auto p-8">
-          <div className="grid grid-cols-4 gap-6 mb-6">
-            {/* Left Column: Calendar */}
-            <div className="col-span-1">
+          <div style={{ display: 'flex', gap: '24px' }}>
+            {/* Left Column: Calendar - 1/4 */}
+            <div style={{ flex: '0 0 25%', minWidth: 0 }}>
               <SimpleCalendar currentMonth={currentMonth} selectedDate={selectedDate} onDateSelect={setSelectedDate} onMonthChange={setCurrentMonth} />
             </div>
 
-            {/* Middle Columns: Tasks & Comments */}
-            <div className="col-span-2 space-y-6">
+            {/* Middle Columns: Tasks - 1/2 */}
+            <div style={{ flex: '0 0 50%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {/* My Tasks */}
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                 <div className="flex items-center justify-between mb-4">
@@ -279,8 +279,8 @@ export default function App() {
               </form>
             </div>
 
-            {/* Right Column: Categories & Tracking */}
-            <div className="col-span-1 space-y-6">
+            {/* Right Column: Categories & Tracking - 1/4 */}
+            <div style={{ flex: '0 0 25%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {/* My Categories */}
               <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
                 <h3 className="font-bold text-slate-900 mb-4">My categories</h3>
