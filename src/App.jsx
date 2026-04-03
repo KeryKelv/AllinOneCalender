@@ -188,7 +188,7 @@ export default function App() {
   }
 
   return (
-    <div className="h-screen w-screen bg-gradient-to-br from-slate-50 to-slate-100 flex flex-col items-center justify-center selection:bg-indigo-100 font-sans overflow-hidden">
+    <div className="min-h-screen w-screen bg-gradient-to-br from-slate-50 to-slate-100 grid place-items-center selection:bg-indigo-100 font-sans overflow-hidden">
       {/* Fixed logout button in top-right */}
       <button onClick={handleLogout} aria-label="Đăng xuất" className="fixed top-4 right-6 left-auto z-50 flex items-center gap-2 bg-white/95 text-slate-900 py-2 px-3 rounded-full shadow-2xl border border-slate-200 hover:scale-105 transition-transform">
         <LogOut size={18} />
