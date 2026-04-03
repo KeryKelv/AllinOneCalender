@@ -179,7 +179,7 @@ export default function App() {
               </div>
             </div>
             <h1 style={{ fontSize: '36px', fontWeight: 900, color: '#fff', marginBottom: '12px', letterSpacing: '-0.02em' }}>Kế hoạch BK</h1>
-            <p style={{ color: '#e0e7ff', fontSize: '16px', marginBottom: '40px', fontWeight: 500 }}>Quản lý công việc giống Organizo</p>
+            <p style={{ color: '#e0e7ff', fontSize: '16px', marginBottom: '40px', fontWeight: 500 }}>Quản lý công việc hiệu quả</p>
             <div style={{ backgroundColor: 'rgba(79, 70, 229, 0.2)', padding: '24px', borderRadius: '16px', marginBottom: '32px', border: '1px solid rgba(79, 70, 229, 0.3)', backdropFilter: 'blur(8px)' }}>
               <button onClick={handleLogin} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', background: 'linear-gradient(to right, rgb(79, 70, 229), rgb(139, 92, 246))', color: '#fff', padding: '16px 24px', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: 'pointer', fontSize: '16px', boxShadow: '0 20px 25px rgba(79, 70, 229, 0.5)', transition: 'all 0.3s', transform: 'scale(1)' }}>
                 <svg style={{ width: '20px', height: '20px' }} viewBox="0 0 24 24" fill="currentColor">
@@ -209,7 +209,7 @@ export default function App() {
       <div style={{ width: '256px', background: 'linear-gradient(to bottom, #0f172a, #1e293b)', color: '#fff', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 25px rgba(0,0,0,0.1)', overflowY: 'auto' }}>
         {/* Logo */}
         <div style={{ padding: '24px', borderBottom: '1px solid rgba(100, 116, 139, 0.3)' }}>
-          <h1 style={{ fontSize: '24px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}><span>🎯</span> Organizo</h1>
+          <h1 style={{ fontSize: '24px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}><span>📋</span> Kế hoạch</h1>
           <p style={{ fontSize: '12px', color: '#94a3b8', marginTop: '4px' }}>{user?.displayName || user?.email}</p>
         </div>
 
