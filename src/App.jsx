@@ -3,6 +3,7 @@ import { Plus, Trash2, Circle, CheckCircle2, LogOut, Loader2, Target, Search, Ca
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
 import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc } from 'firebase/firestore';
+import './App.css';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCpWm7T2pez61uWRpObqjwAmzjbbvzxwLA",
@@ -35,22 +36,43 @@ function SimpleCalendar({ currentMonth, selectedDate, onDateSelect, onMonthChang
   
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   
+  const calendarStyle = {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(7, 1fr)',
+    gap: '4px'
+  };
+  
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="font-bold text-slate-900">{monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}</h3>
-        <div className="flex gap-2">
-          <button onClick={() => onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))} className="p-1 hover:bg-slate-100 rounded">←</button>
-          <button onClick={() => onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))} className="p-1 hover:bg-slate-100 rounded">→</button>
+    <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '16px', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+      <div style={{ marginBottom: '16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+        <h3 style={{ fontWeight: 700, color: '#0f172a', margin: 0 }}>{monthNames[currentMonth.getMonth()]} {currentMonth.getFullYear()}</h3>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button onClick={() => onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))} style={{ padding: '4px 8px', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', fontSize: '18px' }}>←</button>
+          <button onClick={() => onMonthChange(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1))} style={{ padding: '4px 8px', backgroundColor: 'transparent', border: 'none', cursor: 'pointer', fontSize: '18px' }}>→</button>
         </div>
       </div>
-      <div className="grid grid-cols-7 gap-1 text-center text-xs font-bold text-slate-600 mb-2">
-        <div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div><div>Su</div>
+      <div style={{ ...calendarStyle, marginBottom: '8px' }}>
+        {['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'].map(day => (
+          <div key={day} style={{ textAlign: 'center', fontSize: '12px', fontWeight: 700, color: '#64748b' }}>{day}</div>
+        ))}
       </div>
-      <div className="grid grid-cols-7 gap-1">
+      <div style={calendarStyle}>
         {days.map((day, idx) => (
-          <button key={idx} onClick={() => day && onDateSelect(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))} 
-            className={`p-2 rounded text-sm font-bold transition ${day === selectedDate?.getDate() && currentMonth.getMonth() === selectedDate?.getMonth() ? 'bg-amber-300 text-slate-900' : day ? 'hover:bg-slate-100 text-slate-700' : 'text-slate-200'}`}>
+          <button 
+            key={idx} 
+            onClick={() => day && onDateSelect(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), day))}
+            style={{
+              padding: '8px',
+              borderRadius: '6px',
+              fontSize: '14px',
+              fontWeight: 700,
+              border: 'none',
+              cursor: day ? 'pointer' : 'default',
+              backgroundColor: day === selectedDate?.getDate() && currentMonth.getMonth() === selectedDate?.getMonth() ? '#fbbf24' : day ? '#fff' : '#f1f5f9',
+              color: day === selectedDate?.getDate() && currentMonth.getMonth() === selectedDate?.getMonth() ? '#0f172a' : day ? '#334155' : '#cbd5e1',
+              transition: 'all 0.2s'
+            }}
+          >
             {day}
           </button>
         ))}
@@ -68,7 +90,6 @@ export default function App() {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [timeTracking, setTimeTracking] = useState({});
-  const [activeSection, setActiveSection] = useState('dashboard');
 
   useEffect(() => {
     if (!isConfigValid) { setLoading(false); return; }
@@ -129,37 +150,39 @@ export default function App() {
 
   if (!isConfigValid) {
     return (
-      <div className="h-screen w-full bg-slate-50 flex items-center justify-center p-6 font-sans">
-        <div className="w-full bg-white/70 p-8 md:p-12 rounded-xl shadow-lg text-center border border-rose-100">
-          <h1 className="text-2xl font-black text-slate-900 mb-4">Lỗi API Key</h1>
-          <p className="text-slate-600 text-sm">Vui lòng thay Firebase Config trong file App.jsx</p>
+      <div style={{ height: '100vh', width: '100vw', backgroundColor: '#f1f5f9', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'system-ui' }}>
+        <div style={{ width: '100%', backgroundColor: 'rgba(255,255,255,0.7)', padding: '32px', borderRadius: '8px', textAlign: 'center', border: '1px solid rgba(244,63,94,0.1)' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 900, color: '#0f172a', marginBottom: '16px' }}>Lỗi API Key</h1>
+          <p style={{ color: '#64748b', fontSize: '14px' }}>Vui lòng thay Firebase Config trong file App.jsx</p>
         </div>
       </div>
     );
   }
 
   if (loading) {
-    return <div className="h-screen w-full bg-slate-50 flex flex-col items-center justify-center"><Loader2 className="animate-spin text-indigo-600 mb-4" size={40} /></div>;
+    return <div style={{ height: '100vh', width: '100vw', backgroundColor: '#f1f5f9', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+      <Loader2 style={{ animation: 'spin 1s linear infinite', color: '#4f46e5', marginBottom: '16px' }} size={40} />
+    </div>;
   }
 
   if (!user) {
     return (
-      <div className="h-screen w-full bg-gradient-to-br from-indigo-600 via-purple-900 to-slate-950 flex items-center justify-center p-6 overflow-hidden relative">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-indigo-500/20 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-80 h-80 bg-purple-500/20 rounded-full blur-3xl"></div>
+      <div style={{ height: '100vh', width: '100vw', background: 'linear-gradient(to bottom right, #4f46e5 0%, #7c3aed 50%, #1e293b 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '24px', overflow: 'hidden', position: 'relative', fontFamily: 'system-ui' }}>
+        <div style={{ position: 'absolute', top: '80px', left: '40px', width: '288px', height: '288px', backgroundColor: 'rgba(79, 70, 229, 0.2)', borderRadius: '9999px', filter: 'blur(96px)' }}></div>
+        <div style={{ position: 'absolute', bottom: '80px', right: '40px', width: '320px', height: '320px', backgroundColor: 'rgba(168, 85, 247, 0.2)', borderRadius: '9999px', filter: 'blur(96px)' }}></div>
         
-        <div className="relative z-10 w-full">
-          <div className="bg-white/10 backdrop-blur-md p-12 rounded-3xl border border-white/20 text-center shadow-2xl max-w-lg mx-auto">
-            <div className="mb-8 flex justify-center">
-              <div className="w-24 h-24 bg-gradient-to-br from-indigo-400 to-purple-500 rounded-full flex items-center justify-center text-white shadow-2xl shadow-indigo-500/50">
+        <div style={{ position: 'relative', zIndex: 10, width: '100%' }}>
+          <div style={{ backgroundColor: 'rgba(255,255,255,0.1)', backdropFilter: 'blur(12px)', padding: '48px', borderRadius: '24px', border: '1px solid rgba(255,255,255,0.2)', textAlign: 'center', boxShadow: '0 20px 25px rgba(0,0,0,0.2)', maxWidth: '512px', margin: '0 auto' }}>
+            <div style={{ marginBottom: '32px', display: 'flex', justifyContent: 'center' }}>
+              <div style={{ width: '96px', height: '96px', background: 'linear-gradient(to bottom right, rgba(79, 70, 229, 1), rgba(168, 85, 247, 1))', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', boxShadow: '0 20px 25px rgba(79, 70, 229, 0.5)' }}>
                 <Target size={48} strokeWidth={2} />
               </div>
             </div>
-            <h1 className="text-4xl font-black text-white mb-3 tracking-tight">Kế hoạch BK</h1>
-            <p className="text-indigo-100 text-base mb-10 font-medium">Quản lý công việc giống Organizo</p>
-            <div className="bg-gradient-to-r from-indigo-400/20 to-purple-400/20 p-6 rounded-2xl mb-8 border border-indigo-300/30 backdrop-blur">
-              <button onClick={handleLogin} className="w-full flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white py-4 px-6 rounded-xl font-bold transition-all active:scale-95 shadow-lg shadow-indigo-600/50 hover:shadow-xl hover:shadow-indigo-500/70 text-base">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+            <h1 style={{ fontSize: '36px', fontWeight: 900, color: '#fff', marginBottom: '12px', letterSpacing: '-0.02em' }}>Kế hoạch BK</h1>
+            <p style={{ color: '#e0e7ff', fontSize: '16px', marginBottom: '40px', fontWeight: 500 }}>Quản lý công việc giống Organizo</p>
+            <div style={{ backgroundColor: 'rgba(79, 70, 229, 0.2)', padding: '24px', borderRadius: '16px', marginBottom: '32px', border: '1px solid rgba(79, 70, 229, 0.3)', backdropFilter: 'blur(8px)' }}>
+              <button onClick={handleLogin} style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', background: 'linear-gradient(to right, rgb(79, 70, 229), rgb(139, 92, 246))', color: '#fff', padding: '16px 24px', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: 'pointer', fontSize: '16px', boxShadow: '0 20px 25px rgba(79, 70, 229, 0.5)', transition: 'all 0.3s', transform: 'scale(1)' }}>
+                <svg style={{ width: '20px', height: '20px' }} viewBox="0 0 24 24" fill="currentColor">
                   <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#fff"/>
                   <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#fff"/>
                   <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#fff"/>
@@ -181,97 +204,100 @@ export default function App() {
   const todayTasks = tasks.filter(t => !t.completed && t.dueDate === selectedDate.toISOString().split('T')[0]);
 
   return (
-    <div className="h-screen w-screen bg-gradient-to-br from-slate-50 to-slate-100 flex font-sans overflow-hidden">
+    <div style={{ height: '100vh', width: '100vw', background: 'linear-gradient(to bottom right, #f1f5f9 0%, #eef2ff 100%)', display: 'flex', fontFamily: 'system-ui', overflow: 'hidden' }}>
       {/* ===== SIDEBAR ===== */}
-      <div className="w-64 bg-gradient-to-b from-slate-900 to-slate-800 text-white flex flex-col shadow-lg overflow-y-auto">
+      <div style={{ width: '256px', background: 'linear-gradient(to bottom, #0f172a, #1e293b)', color: '#fff', display: 'flex', flexDirection: 'column', boxShadow: '0 20px 25px rgba(0,0,0,0.1)', overflowY: 'auto' }}>
         {/* Logo */}
-        <div className="p-6 border-b border-slate-700">
-          <h1 className="text-2xl font-black flex items-center gap-2"><span className="text-yellow-400">🎯</span> Organizo</h1>
-          <p className="text-xs text-slate-400 mt-1">{user?.displayName || user?.email}</p>
+        <div style={{ padding: '24px', borderBottom: '1px solid rgba(100, 116, 139, 0.3)' }}>
+          <h1 style={{ fontSize: '24px', fontWeight: 900, display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}><span>🎯</span> Organizo</h1>
+          <p style={{ fontSize: '12px', color: '#94a3b8', marginTop: '4px' }}>{user?.displayName || user?.email}</p>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 p-4 space-y-2">
+        <nav style={{ flex: 1, padding: '16px', display: 'flex', flexDirection: 'column', gap: '8px' }}>
           {[
             { id: 'dashboard', label: 'Dashboard', icon: Home },
             { id: 'my-tasks', label: 'My tasks', icon: Circle },
             { id: 'notifications', label: 'Notifications', icon: Bell },
             { id: 'settings', label: 'Settings', icon: Settings }
-          ].map(item => {
-            const Icon = item.icon;
-            return (
-              <button key={item.id} onClick={() => setActiveSection(item.id)} className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition ${activeSection === item.id ? 'bg-indigo-600 text-white font-bold' : 'text-slate-300 hover:bg-slate-700'}`}>
-                <Icon size={20} /> {item.label}
-              </button>
-            );
-          })}
+          ].map(item => (
+            <button key={item.id} onClick={() => {}} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: 'rgba(100, 116, 139, 0.1)', color: '#cbd5e1', transition: 'all 0.2s', fontWeight: 500 }}>
+              {item.id === 'dashboard' && <Home size={20} />}
+              {item.id === 'my-tasks' && <Circle size={20} />}
+              {item.id === 'notifications' && <Bell size={20} />}
+              {item.id === 'settings' && <Settings size={20} />}
+              {item.label}
+            </button>
+          ))}
         </nav>
 
         {/* Logout */}
-        <div className="p-4 border-t border-slate-700">
-          <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-slate-300 hover:bg-slate-700 transition">
+        <div style={{ padding: '16px', borderTop: '1px solid rgba(100, 116, 139, 0.3)' }}>
+          <button onClick={handleLogout} style={{ width: '100%', display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '8px', border: 'none', cursor: 'pointer', backgroundColor: 'rgba(100, 116, 139, 0.1)', color: '#cbd5e1', transition: 'all 0.2s' }}>
             <LogOut size={20} /> Log out
           </button>
         </div>
       </div>
 
       {/* ===== MAIN CONTENT ===== */}
-      <div className="flex-1 overflow-hidden flex flex-col">
+      <div style={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
         {/* Top Bar */}
-        <div className="bg-white border-b border-slate-200 px-8 py-4 flex items-center justify-between shadow-sm">
-          <h2 className="text-2xl font-black bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">Dashboard</h2>
-          <div className="flex items-center gap-4">
-            <div className="relative">
-              <Search size={20} className="absolute left-3 top-3 text-slate-400" />
-              <input type="text" placeholder="Search..." className="pl-10 pr-4 py-2 rounded-lg bg-slate-100 border border-slate-300 focus:border-indigo-500 outline-none" />
+        <div style={{ backgroundColor: '#fff', borderBottom: '1px solid #e2e8f0', padding: '16px 32px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 1px 3px rgba(0,0,0,0.06)' }}>
+          <h2 style={{ fontSize: '28px', fontWeight: 900, background: 'linear-gradient(to right, #4f46e5, #7c3aed)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', margin: 0 }}>Dashboard</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <div style={{ position: 'relative' }}>
+              <Search size={20} style={{ position: 'absolute', left: '12px', top: '12px', color: '#94a3b8' }} />
+              <input type="text" placeholder="Search..." style={{ paddingLeft: '40px', paddingRight: '16px', paddingTop: '8px', paddingBottom: '8px', borderRadius: '8px', backgroundColor: '#f1f5f9', border: '1px solid #cbd5e1', outline: 'none' }} />
             </div>
           </div>
         </div>
 
         {/* Content Grid */}
-        <div className="flex-1 overflow-auto p-8" style={{ display: 'flex', alignItems: 'flex-start' }}>
+        <div style={{ flex: 1, overflowY: 'auto', padding: '32px', display: 'flex', alignItems: 'flex-start' }}>
           <div style={{ display: 'flex', gap: '24px', width: '100%' }}>
             {/* Left Column: Calendar - 1/4 */}
             <div style={{ flex: '0 0 25%', minWidth: 0 }}>
               <SimpleCalendar currentMonth={currentMonth} selectedDate={selectedDate} onDateSelect={setSelectedDate} onMonthChange={setCurrentMonth} />
             </div>
 
-            {/* Middle Columns: Tasks - 1/2 */}
+            {/* Middle Column: Tasks - 1/2 */}
             <div style={{ flex: '0 0 50%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {/* My Tasks */}
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="font-bold text-slate-900">My tasks ({tasks.filter(t => !t.completed).length})</h3>
-                  <button className="text-indigo-600 font-bold hover:bg-indigo-50 px-3 py-1 rounded">+ New task</button>
+              <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
+                  <h3 style={{ fontWeight: 700, color: '#0f172a', margin: 0 }}>My tasks ({tasks.filter(t => !t.completed).length})</h3>
+                  <button style={{ color: '#4f46e5', fontWeight: 700, backgroundColor: 'transparent', border: 'none', cursor: 'pointer', padding: '8px 12px', borderRadius: '6px' }}>+ New task</button>
                 </div>
-                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '300px', overflowY: 'auto' }}>
                   {todayTasks.length > 0 ? todayTasks.map(task => (
-                    <div key={task.id} className="flex items-center gap-3 p-3 hover:bg-slate-50 rounded-lg transition">
-                      <button onClick={() => handleToggleTask(task.id)} className="flex-shrink-0">
-                        {task.completed ? <CheckCircle2 size={20} className="text-indigo-500" /> : <Circle size={20} className="text-slate-400" />}
+                    <div key={task.id} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                      <button onClick={() => handleToggleTask(task.id)} style={{ flexShrink: 0, backgroundColor: 'transparent', border: 'none', cursor: 'pointer' }}>
+                        {task.completed ? <CheckCircle2 size={20} color="#4f46e5" /> : <Circle size={20} color="#cbd5e1" />}
                       </button>
-                      <div className="flex-1">
-                        <p className={task.completed ? 'line-through text-slate-400' : 'text-slate-900 font-medium'}>{task.text}</p>
-                        <p className="text-xs text-slate-500">{task.category}</p>
+                      <div style={{ flex: 1 }}>
+                        <p style={{ color: task.completed ? '#94a3b8' : '#0f172a', textDecoration: task.completed ? 'line-through' : 'none', fontWeight: task.completed ? 400 : 500, margin: '0 0 4px 0' }}>{task.text}</p>
+                        <p style={{ fontSize: '12px', color: '#94a3b8', margin: 0 }}>{task.category}</p>
                       </div>
-                      <button onClick={() => handleDeleteTask(task.id)} className="text-slate-300 hover:text-rose-500"><Trash2 size={16} /></button>
+                      <button onClick={() => handleDeleteTask(task.id)} style={{ backgroundColor: 'transparent', border: 'none', cursor: 'pointer', color: '#cbd5e1', transition: 'all 0.2s' }}>
+                        <Trash2 size={16} />
+                      </button>
                     </div>
                   )) : (
-                    <p className="text-sm text-slate-500 text-center py-4">No tasks for today</p>
+                    <p style={{ fontSize: '14px', color: '#94a3b8', textAlign: 'center', padding: '16px 0' }}>No tasks for today</p>
                   )}
                 </div>
               </div>
 
               {/* Add Task Form */}
-              <form onSubmit={handleAddTask} className="bg-gradient-to-r from-indigo-50 to-purple-50 p-6 rounded-2xl border border-indigo-200">
-                <h4 className="font-bold text-slate-900 mb-4">Add New Task</h4>
-                <div className="space-y-3">
-                  <input type="text" value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder="What's your next task?" className="w-full px-4 py-3 rounded-lg border border-indigo-300 bg-white focus:border-indigo-500 outline-none" />
-                  <div className="flex gap-3">
-                    <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} className="flex-1 px-4 py-2 rounded-lg border border-indigo-300 bg-white text-sm">
+              <form onSubmit={handleAddTask} style={{ background: 'linear-gradient(to right, rgba(79, 70, 229, 0.05), rgba(139, 92, 246, 0.05))', padding: '24px', borderRadius: '16px', border: '1px solid rgba(79, 70, 229, 0.2)' }}>
+                <h4 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '16px', margin: 0, paddingBottom: '16px' }}>Add New Task</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  <input type="text" value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder="What's your next task?" style={{ width: '100%', padding: '12px 16px', borderRadius: '8px', border: '1px solid rgba(79, 70, 229, 0.5)', backgroundColor: '#fff', outline: 'none' }} />
+                  <div style={{ display: 'flex', gap: '12px' }}>
+                    <select value={newCategory} onChange={(e) => setNewCategory(e.target.value)} style={{ flex: 1, padding: '8px 12px', borderRadius: '8px', border: '1px solid rgba(79, 70, 229, 0.5)', backgroundColor: '#fff', fontSize: '14px' }}>
                       {categories.map(cat => <option key={cat} value={cat}>{categoryEmojis[cat]} {cat.charAt(0).toUpperCase() + cat.slice(1)}</option>)}
                     </select>
-                    <button type="submit" disabled={!newTask.trim()} className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:bg-slate-300 text-white px-6 py-2 rounded-lg font-bold transition">
+                    <button type="submit" disabled={!newTask.trim()} style={{ display: 'flex', alignItems: 'center', gap: '8px', backgroundColor: newTask.trim() ? '#4f46e5' : '#cbd5e1', color: '#fff', padding: '8px 24px', borderRadius: '8px', fontWeight: 700, border: 'none', cursor: newTask.trim() ? 'pointer' : 'default', transition: 'all 0.2s' }}>
                       <Plus size={20} /> Add
                     </button>
                   </div>
@@ -282,43 +308,43 @@ export default function App() {
             {/* Right Column: Categories & Tracking - 1/4 */}
             <div style={{ flex: '0 0 25%', minWidth: 0, display: 'flex', flexDirection: 'column', gap: '24px' }}>
               {/* My Categories */}
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <h3 className="font-bold text-slate-900 mb-4">My categories</h3>
-                <div className="space-y-3">
+              <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
+                <h3 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '16px', margin: 0, paddingBottom: '16px' }}>My categories</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {tasksByCategory.map(cat => (
-                    <div key={cat.name} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xl">{cat.emoji}</span>
-                        <span className="text-sm font-medium text-slate-700 capitalize">{cat.name}</span>
+                    <div key={cat.name} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '20px' }}>{cat.emoji}</span>
+                        <span style={{ fontSize: '14px', fontWeight: 500, color: '#475569', textTransform: 'capitalize' }}>{cat.name}</span>
                       </div>
-                      <span className="text-xs bg-slate-200 text-slate-700 px-2 py-1 rounded">{cat.count}</span>
+                      <span style={{ fontSize: '12px', backgroundColor: '#e2e8f0', color: '#475569', padding: '4px 8px', borderRadius: '4px' }}>{cat.count}</span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* My Tracking */}
-              <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-                <h3 className="font-bold text-slate-900 mb-4">My tracking</h3>
-                <div className="space-y-3 max-h-[300px] overflow-y-auto">
+              <div style={{ backgroundColor: '#fff', padding: '24px', borderRadius: '16px', boxShadow: '0 1px 3px rgba(0,0,0,0.06)', border: '1px solid #e2e8f0' }}>
+                <h3 style={{ fontWeight: 700, color: '#0f172a', marginBottom: '16px', margin: 0, paddingBottom: '16px' }}>My tracking</h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '300px', overflowY: 'auto' }}>
                   {tasks.filter(t => !t.completed).map(task => (
-                    <div key={task.id} className="flex items-center justify-between p-3 hover:bg-slate-50 rounded-lg transition">
-                      <div className="flex items-center gap-2">
-                        <Clock size={16} className="text-indigo-500" />
-                        <span className="text-sm text-slate-700 truncate">{task.text}</span>
+                    <div key={task.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '12px', borderRadius: '8px', cursor: 'pointer', transition: 'all 0.2s' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        <Clock size={16} color="#4f46e5" />
+                        <span style={{ fontSize: '14px', color: '#475569', textOverflow: 'ellipsis', overflow: 'hidden' }}>{task.text}</span>
                       </div>
-                      <input type="text" placeholder="time" value={timeTracking[task.id] || ''} onChange={(e) => setTimeTracking({...timeTracking, [task.id]: e.target.value})} className="w-16 px-2 py-1 rounded text-xs border border-slate-200 focus:border-indigo-500 outline-none" />
+                      <input type="text" placeholder="time" value={timeTracking[task.id] || ''} onChange={(e) => setTimeTracking({...timeTracking, [task.id]: e.target.value})} style={{ width: '64px', padding: '4px 8px', borderRadius: '4px', fontSize: '12px', border: '1px solid #e2e8f0', outline: 'none' }} />
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* Stats */}
-              <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-6 rounded-2xl">
-                <div className="text-center">
-                  <p className="text-sm opacity-90">Progress</p>
-                  <p className="text-3xl font-black">{completedTasks}/{tasks.length}</p>
-                  <p className="text-xs opacity-75 mt-2">Tasks completed</p>
+              <div style={{ background: 'linear-gradient(to right, #4f46e5, #7c3aed)', color: '#fff', padding: '24px', borderRadius: '16px' }}>
+                <div style={{ textAlign: 'center' }}>
+                  <p style={{ fontSize: '14px', opacity: 0.9, margin: '0 0 8px 0' }}>Progress</p>
+                  <p style={{ fontSize: '32px', fontWeight: 900, margin: '0 0 8px 0' }}>{completedTasks}/{tasks.length}</p>
+                  <p style={{ fontSize: '12px', opacity: 0.75, margin: 0 }}>Tasks completed</p>
                 </div>
               </div>
             </div>
