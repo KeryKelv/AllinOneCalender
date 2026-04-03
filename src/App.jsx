@@ -349,7 +349,7 @@ export default function App() {
                       key={cat.name}
                       onClick={() => setSelectedCategory(cat.name)}
                       role="button"
-                      aria-label={`Open ${cat.name} history`}
+                      aria-label={'Open ' + cat.name + ' history'}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
@@ -428,13 +428,13 @@ export default function App() {
                         </button>
                         <div style={{ flex: 1 }}>
                           <div style={{ fontWeight: 600, color: task.completed ? '#94a3b8' : '#0f172a' }}>{task.text}</div>
-                          <div style={{ fontSize: 12, color: '#64748b' }}>{task.deadline ? `Hạn: ${task.deadline}` : ''} {task.createdAt ? ` • Thêm: ${new Date(task.createdAt).toLocaleDateString('vi-VN')}` : ''}</div>
+                          <div style={{ fontSize: 12, color: '#64748b' }}>{task.deadline ? ('Hạn: ' + task.deadline) : ''} {task.createdAt ? (' • Thêm: ' + new Date(task.createdAt).toLocaleDateString('vi-VN')) : ''}</div>
                         </div>
                       </div>
                       <div style={{ marginLeft: 12 }}>
                         {daysLeft !== null && (
                           <span style={{ display: 'inline-block', padding: '4px 8px', borderRadius: 6, background: badgeColor, color: '#fff', fontSize: 12 }}>
-                            {daysLeft < 0 ? `Quá hạn ${Math.abs(daysLeft)}d` : daysLeft === 0 ? 'Hôm nay' : `${daysLeft}d`}
+                            {daysLeft < 0 ? ('Quá hạn ' + Math.abs(daysLeft) + 'd') : daysLeft === 0 ? 'Hôm nay' : (daysLeft + 'd')}
                           </span>
                         )}
                       </div>
