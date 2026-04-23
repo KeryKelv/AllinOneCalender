@@ -1,16 +1,28 @@
-# React + Vite
+# TODO-MINI: Ứng dụng quản lý công việc cá nhân
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 1. Giới thiệu (Introduction)
+Todo-Mini là một ứng dụng web nhỏ gọn được phát triển nhằm mục đích quản lý danh sách công việc, tối ưu hóa thời gian và theo dõi tiến độ cá nhân. 
 
-Currently, two official plugins are available:
+## 2. Mục tiêu dự án (Objective)
+Là một sinh viên Kỹ thuật Xây dựng, tôi coi trọng sự chính xác và tính kỷ luật về mặt thời gian. Dự án này được tạo ra để:
+* Hỗ trợ tự động hóa việc sắp xếp lịch làm các đồ án chuyên ngành (Nền móng, Kỹ thuật thi công).
+* Rèn luyện tư duy logic và khả năng ứng dụng công nghệ (Digital Literacy) vào việc giải quyết các bài toán quản lý thực tế.
+* Phát triển với sự hỗ trợ của AI nhằm tối ưu hóa quy trình viết code và rà soát lỗi.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 3. Công nghệ sử dụng (Tech Stack)
+* **Frontend:** [Ghi công nghệ ông dùng, ví dụ: ReactJS, HTML/CSS/JS]
+* **Tooling:** npm, Git
+* **Methodology:** AI-assisted Development
 
-## React Compiler
+## 4. Cách chạy dự án (How to run)
+Để chạy dự án này trên máy tính cá nhân, bạn cần cài đặt Node.js và thực hiện các bước sau:
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+1. Clone repository này về máy.
+2. Mở terminal tại thư mục dự án và chạy lệnh cài đặt thư viện:
+   npm install
+3. Khởi chạy ứng dụng:
+   npm start
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 5. Tác giả (Author)
+* **Khoa Phạm** * Sinh viên Kỹ thuật Xây dựng - Trường Đại học Bách Khoa TP.HCM (HCMUT).
+* Thành viên Coteccons Young Talent.
