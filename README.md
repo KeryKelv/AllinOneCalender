@@ -13,6 +13,6 @@ Todo-Mini là một ứng dụng web nhỏ gọn được phát triển nhằm m
 ## 4. Link 
 https://kerykelv.github.io/AllinOneCalender/
 
-## 5. Tác giả (Author)
+## 5. Tác giả 
 * **Khoa Phạm** * Sinh viên Kỹ thuật Xây dựng - Trường Đại học Bách Khoa TP.HCM (HCMUT).
 * Thành viên Coteccons Young Talent.
